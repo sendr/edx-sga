@@ -192,6 +192,8 @@ function StaffGradedAssignmentXBlock(runtime, element) {
             form.find('#submission_id-input').val(row.data('submission_id'));
             form.find('#grade-input').val(row.data('score'));
             form.find('#comment-input').text(row.data('comment'));
+            form.find('#remove-grade').prop('disabled', false);
+            form.find('.ccx-enter-grade-spinner').hide();
             form.off('submit').on('submit', function(event) {
                 var max_score = row.parents('#grade-info').data('max_score');
                 var score = Number(form.find('#grade-input').val());
@@ -206,15 +208,24 @@ function StaffGradedAssignmentXBlock(runtime, element) {
                     form.find('.error').html('<br/>Maximum score is ' + max_score);
                 } else {
                     // No errors
+                    form.find('.ccx-enter-grade-spinner').show();
                     $.post(enterGradeUrl, form.serialize())
-                        .success(renderStaffGrading);
+                        .success(renderStaffGrading)
+                        .fail(function() {
+                            form.find('.ccx-enter-grade-spinner').hide();
+                        });
                 }
             });
-            form.find('#remove-grade').on('click', function() {
+            form.find('#remove-grade').off('click').on('click', function() {
+                $(this).prop('disabled', true);
+                form.find('.ccx-enter-grade-spinner').show();
                 var url = removeGradeUrl + '?module_id=' +
                     row.data('module_id') + '&student_id=' +
                     row.data('student_id');
-                $.get(url).success(renderStaffGrading);
+                $.get(url).success(renderStaffGrading).fail(function() {
+                    $(this).prop('disabled', false);
+                    form.find('.ccx-enter-grade-spinner').hide();
+                });
             });
             form.find('#enter-grade-cancel').on('click', function() {
                 /* We're kind of stretching the limits of leanModal, here,
