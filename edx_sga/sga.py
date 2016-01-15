@@ -414,7 +414,7 @@ class StaffGradedAssignmentXBlock(XBlock):
         return Response(
             app_iter=app_iter,
             content_type=mimetype,
-            content_disposition="attachment; filename=" + filename)
+            content_disposition="attachment; filename=" + filename.encode('utf-8'))
 
     @XBlock.handler
     def get_staff_grading_data(self, request, suffix=''):
@@ -476,7 +476,7 @@ class StaffGradedAssignmentXBlock(XBlock):
 
     def _file_storage_path(self, sha1, filename):
         path = (
-            '{loc.org}/{loc.course}/{loc.block_type}/{loc.block_id}'
+            'sga/{loc.org}/{loc.course}/{loc.block_type}/{loc.block_id}'
             '/{sha1}{ext}'.format(
                 loc=self.location,
                 sha1=sha1,
